@@ -1,3 +1,30 @@
+```python
+# Create chat and get response
+imgchat = Chat(model)
+response = imgchat([img, prompt])
+
+# Parse the XML response
+try:
+    # The response needs to be accessed as a string first
+    # Let's print the raw response to see what we're getting
+    print("Raw response:")
+    print(response)
+    
+    # Then we can try to extract the XML
+    # We might need to use BeautifulSoup to find the XML content within the response
+    soup = bs(str(response), 'xml')
+    doc = Document(str(soup.find('document')))
+    
+    # Now we can access structured data
+    metadata = doc.find('metadata')
+    structure = doc.find('structure')
+    print("\nParsed data:")
+    print(f"Document type: {metadata.find('type').text if metadata else 'Not found'}")
+except Exception as e:
+    print(f"Error parsing response: {e}")
+```
+
+---
 Yes! The tools-lm package's XML support will be perfect for this. Let's modify our approach to use the XML structure more effectively and make the results easily parseable:
 
 ```python
