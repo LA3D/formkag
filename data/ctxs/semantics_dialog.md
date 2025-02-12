@@ -98,3 +98,46 @@ Would you like me to run this test so we can see how it performs with our exampl
 4. Add the validation rules
 
 Let me know if you want to proceed with testing or if you'd like to modify the approach first!
+
+
+## Document Chunker protype
+@agent("document chunker")
+def chunk_document(img: bytes, chat=None) -> Dict[str,Any]:
+    "Create document chunks with unique DIDs and spatial relationships"
+    schema = {
+        "chunks": [{
+            "did": "did:doc:...",  # DID for the chunk
+            "bbox": {"x":0, "y":0, "w":0, "h":0},  # Spatial location
+            "content": "",  # Raw text content
+            "type": "",    # Section type
+            "relationships": [{  # Spatial/logical relationships
+                "to_chunk": "did:doc:...",
+                "type": "contains|follows|references"
+            }]
+        }],
+        "document_did": "did:doc:..."  # Root document DID
+    }
+    prompt = f"Analyze this document and return ONLY a JSON object matching:\n{json.dumps(schema, indent=2)}"
+    return parse_json(chat([img, prompt]))
+
+@agent("knowledge extractor") 
+def extract_knowledge(chunks: Dict[str,Any], chat=None) -> Dict[str,Any]:
+    "Extract structured knowledge while maintaining chunk references"
+    schema = {
+        "entities": [{
+            "did": "did:doc:...",  # Entity DID
+            "type": "",  # Entity type
+            "value": "", # Extracted value
+            "source_chunks": ["did:doc:..."],  # DIDs of source chunks
+            "confidence": 0.0
+        }],
+        "relationships": [{
+            "did": "did:doc:...",
+            "type": "",
+            "from_entity": "did:doc:...",
+            "to_entity": "did:doc:...", 
+            "source_chunks": ["did:doc:..."]
+        }]
+    }
+    return parse_json(chat([json.dumps(chunks), prompt]))
+
